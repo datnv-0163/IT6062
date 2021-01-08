@@ -1,0 +1,12 @@
+11
+Room6 3
+Room5 3
+Room3 4
+group2 2
+group1 1
+pow 1
+room5 2
+roli 2
+PA 5
+Room4 4
+a 2
