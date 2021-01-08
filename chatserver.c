@@ -14,7 +14,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <sys/select.h>
-
+#include "color.h"
 #include "common.h"
 #include "login.h"
 #define MAXLEN 100
@@ -26,7 +26,7 @@ void readFile()
 	FILE *fp = fopen("a.txt", "r");
 	if (fp == NULL)
 	{
-		printf("Can't open the file!");
+		printf(RED"Can't open the file!");
 		exit(0);
 	}
 	char user[MAXLEN];
@@ -48,7 +48,7 @@ void writeData(char *user, char *data)
 	strcpy(filename, user);
 	strcat(filename, ".txt");
 	FILE *fp = fopen(filename, "a");
-	fprintf(fp, "%s %s", "\n", data);
+	fprintf(fp, GRN"%s" CYN"%s", "\n", data);
 	fclose(fp);
 }
 /* Thông tin thành viên trong nhóm*/
@@ -183,7 +183,7 @@ int initgroups()
 	fp = fopen("groups.txt", "r");
 	if (!fp)
 	{
-		fprintf(stderr, "error : unable to open file 'groups.txt'\n");
+		fprintf(stderr, RED"error : unable to open file 'groups.txt'\n");
 		return (0);
 	}
 
@@ -204,7 +204,7 @@ int initgroups()
 		/* Tên phòng và số ng tối đa */
 		if (fscanf(fp, "%s %d", name, &capa) != 2)
 		{
-			printf("error : no info on group %d\n", grid + 1);
+			printf(RED"error : no info on group %d\n", grid + 1);
 			return (0);
 		}
 
@@ -307,7 +307,7 @@ int processLogIn(int sock, char *username, char *pass)
 	current[sock]->state = 1;
 	current[sock]->sock = sock;
 	sendpkt(sock, SUCCESS, strlen(succmsg), succmsg);
-	printf("%d\n", sock);
+	printf(MAG"%d\n", sock);
 	return 1;
 }
 
@@ -424,11 +424,11 @@ int joingroup(int sock, char *gname, char *username)
 	memb = (Member *)calloc(1, sizeof(Member));
 	if (!memb)
 	{
-		printf("error : unable to calloc\n");
+		printf(RED"error : unable to calloc\n");
 		// cleanup();
 	}
 	memb->name = strdup(username);
-	printf("%s , %s\n", memb->name,username);
+	printf(GRN"%s"RESET "," CYN"%s\n"RESET, memb->name,username);
 	memb->sock = sock;
 	memb->grid = grid;
 	memb->prev = NULL;
@@ -438,12 +438,12 @@ int joingroup(int sock, char *gname, char *username)
 		group[grid].mems->prev = memb;
 	}
 	group[grid].mems = memb;
-	printf("admin: '%s' joined '%s'\n", username, gname);
+	printf("admin:" GRN"'%s'"RESET "joined" CYN"'%s'\n"RESET, username, gname);
 
 	/* Cập nhật phòng chat trực tuyến */
 	group[grid].occu++;
 	current[sock]->state = 0;
-	printf("%d\n", current[sock]->sock);
+	printf(MAG"%d\n", current[sock]->sock);
 	sendpkt(sock, JOIN_ACCEPTED, 0, NULL); /* Gửi và nhận tin nhắn thành viên */
 	fflush(stdin);
 	return (1);
@@ -495,9 +495,9 @@ int findbysock(int a){
 }
 
 int findother(int a){
-	printf("input other sock %d\n", a);
+	printf("input other sock" MAG"%d\n"RESET, a);
 	int m;
-	printf("head here %d - %d\n", head->ID, head->sock);
+	printf("head here" GRN"%d"RESET "-" MAG"%d\n"RESET, head->ID, head->sock);
 	node *temp = head;
 	
 	while(temp!=NULL){
@@ -543,20 +543,20 @@ int join11(int sock, char *uname, char *username)
 		sendpkt(sock, JOIN_REJECTED, strlen(errmsg), errmsg);
 		return (0);
 	}
-	printf("start new chat1v1 %s - %s\n", username, uname);
+	printf("start new single chat "GRN"%s"RESET "-" GRN"%s\n"RESET, username, uname);
 
 	try1(username);
 	try1(uname);
 	sl++;
-	printf("send initial pkt to %s from %s - len %zd\n", uname, current[sock]->username, strlen(current[sock]->username));
+	printf("send initial pkt to" GRN"%s"RESET "from" GRN"%s"RESET "- len" YEL"%zd\n"RESET, uname, current[sock]->username, strlen(current[sock]->username));
 	sendpkt(try(uname),REQUEST,strlen(current[sock]->username),current[sock]->username);	
-	printf("send join accepted pkt to %s\n", uname);
+	printf("send join accepted pkt to" GRN"%s\n"RESET, uname);
 	sendpkt(sock, JOIN_ACCEPTED, 0, NULL);
-	printf("sent join accepted pkt to %s\n", uname);
+	printf("sent join accepted pkt to" GRN"%s\n"RESET, uname);
 	changeStatus(uname);
 	changeStatus(username);
 	fflush(stdin);
-	printf("flushed stdin %s\n", uname);
+	printf("flushed stdin" YEL"%s\n"RESET, uname);
 	return (1);
 }
 
@@ -599,7 +599,7 @@ int leavegroup(int sock)
 	else
 		memb->prev->next = memb->next; /*Ở giữa ds*/
 
-	printf("admin: '%s' left '%s'\n",
+	printf("admin:" GRN"'%s'"RESET "left" MAG"'%s'\n"RESET,
 		   temp->username, group[memb->grid].name);
 
 	/*Cập nhật chia sẻ phòng chat*/
@@ -634,13 +634,13 @@ int givemsg(int sock, char *text){
 	strcpy(bufrptr, text);
 	bufrptr += strlen(bufrptr) + 1;
 	bufrlen = bufrptr - pktbufr;
-	printf("other sock %d\n", findother(sock));
+	printf(MAG"other sock %d\n", findother(sock));
 	sendpkt(findother(sock),USER_TEXT1, bufrlen,pktbufr);
-	printf("%s", pktbufr);
+	printf(CYN"%s", pktbufr);
 	/* Truyên tin nhắn đến các thành viên khác trong phòng*/
 		/*Bỏ qua người gửi */
 	fflush(stdin);
-	printf("%s", text);
+	printf(GRN"%s", text);
 	return (1);
 }
 
@@ -666,7 +666,7 @@ int relaymsg(int sock, char *text)
 	/* Thêm tên người gửi trc văn bản tin nhắn */
 	bufrptr = pktbufr;
 	strcpy(bufrptr, temp->username);
-	printf("%s\n",bufrptr);
+	printf(GRN"%s\n",bufrptr);
 	bufrptr += strlen(bufrptr) + 1;
 	strcpy(bufrptr, text);
 	bufrptr += strlen(bufrptr) + 1;
@@ -680,7 +680,7 @@ int relaymsg(int sock, char *text)
 		sendpkt(memb->sock, USER_TEXT, bufrlen, pktbufr); /* Gửi tin nhắn cho các thành viên khác trong phòng trò chuyện (TCP là song công hoàn toàn) */
 	}
 	//printf("%d\n", sender->sock);
-	printf("%s: %s", temp->username, text);
+	printf(GRN"%s:"RESET CYN"%s"RESET, temp->username, text);
 	return (1);
 }
 
@@ -701,7 +701,7 @@ int main(int argc, char *argv[])
 	/*Check cú pháp */
 	if (argc != 2)
 	{
-		printf("Wrong syntax!!!\n--> Correct Syntax: ./server PortNumber\n");
+		printf(RED"Wrong syntax!!!\n--> Correct Syntax: ./server PortNumber\n");
 		return 0;
 	}
 
@@ -768,9 +768,9 @@ int main(int argc, char *argv[])
 						clientname = he->h_name;
 					}
 					else
-						printf("Cannot get peer name/n");
+						printf(RED"Cannot get peer name/n");
 
-					printf("admin: disconnect from '%s' at '%d'\n",
+					printf(RED"admin: disconnect from "RESET GRN"'%s'"RESET RED"at"RESET MAG"'%d'\n"RESET,
 						   clientname, sock);
 
 					/* Xóa thành viên khỏi phòng trò chuyện */
@@ -880,10 +880,10 @@ int main(int argc, char *argv[])
 				if (h != (struct hostent *)0)
 					clientname = h->h_name;
 				else
-					printf("gethostbyaddr failed\n");
+					printf(RED"gethostbyaddr failed\n");
 
 				/* Hiển thị tên máy chủ của máy khách và bộ mô tả ổ cắm tương ứng  */
-				printf("admin: connect from '%s' at '%d'\n",
+				printf("admin: connect from" GRN"'%s'"RESET "at" MAG"'%d'\n"RESET,
 					   clientname, csd);
 
 				/*Thêm csd vào livesdset */

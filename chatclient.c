@@ -14,6 +14,7 @@
 #include "menu.h"
 #include "common.h"
 #include "login.h"
+#include "color.h"
 
 #define QUIT_STRING "/end"
 #define BUFF_SIZE 8192
@@ -52,7 +53,7 @@ void showgroups(long lent, char *text)
 	char *tptr;
 
 	tptr = text;
-	printf("%18s %19s %19s\n", "Room's name", "Capacity", "Online");
+	printf("%18s %19s %19s\n", BLU"Room's name", MAG"Capacity", GRN"Online");
 	while (tptr < text + lent)
 	{
 		char *name, *capa, *occu, *user;
@@ -64,7 +65,7 @@ void showgroups(long lent, char *text)
 		occu = tptr;
 		tptr = occu + strlen(occu) + 1;
 
-		printf("%15s %19s %19s\n", name, capa, occu);
+		printf(BLU"%15s"RESET MAG"%19s"RESET GRN"%19s\n"RESET, name, capa, occu);
 	}
 }
 
@@ -73,7 +74,7 @@ void showUser(long lent, char *text)
 	char *tptr;
 
 	tptr = text;
-	printf("%18s %19s\n", "Username", "Sock");
+	printf("%18s %19s\n", CYN"Username", MAG"Sock");
 	while (tptr < text + lent)
 	{
 		char *username, *sock;
@@ -83,7 +84,7 @@ void showUser(long lent, char *text)
 		//printf("%s",username);
 		sock = tptr;
 		tptr = sock + strlen(sock) + 1;
-		printf("%18s %19s\n", username, sock);
+		printf(CYN"%18s"RESET,username);
 	}
 }
 
@@ -97,13 +98,13 @@ int sendListOn(int sock)
 	pkt = recvpkt(sock);
 	if (!pkt)
 	{
-		printf("error: server died\n");
+		printf(RED"error: server died\n");
 		exit(1);
 	}
 
 	if (pkt->type != DONE)
 	{
-		fprintf(stderr, "error: unexpected reply from server2\n");
+		fprintf(stderr, RED"error: unexpected reply from server2\n");
 		exit(1);
 	}
 
@@ -123,13 +124,13 @@ int sendListGr(int sock)
 	pkt = recvpkt(sock);
 	if (!pkt)
 	{
-		printf("error: server died\n");
+		printf(RED"error: server died\n");
 		exit(1);
 	}
 
 	if (pkt->type != LIST_GROUPS)
 	{
-		fprintf(stderr, "error: unexpected reply from server3\n");
+		fprintf(stderr, RED"error: unexpected reply from server3\n");
 		exit(1);
 	}
 
@@ -156,13 +157,13 @@ int joinagroup(int sock)
 	pkt = recvpkt(sock);
 	if (!pkt)
 	{
-		printf("error: server died\n");
+		printf(RED"error: server died\n");
 		exit(1);
 	}
 
 	if (pkt->type != LIST_GROUPS)
 	{
-		fprintf(stderr, "error: unexpected reply from server4\n");
+		fprintf(stderr, RED"error: unexpected reply from server4\n");
 		exit(1);
 	}
 
@@ -170,7 +171,7 @@ int joinagroup(int sock)
 	showgroups(pkt->lent, pkt->text);
 
 	/* Tên phòng chat */
-	printf("which group?\n ");
+	printf(CYN"which group?\n ");
 	fgets(bufr, MAXPKTLEN, stdin);
 	bufr[strlen(bufr) - 1] = '\0';
 
@@ -193,26 +194,26 @@ int joinagroup(int sock)
 	pkt = recvpkt(sock);
 	if (!pkt)
 	{
-		printf("error: server died\n");
+		printf(RED"error: server died\n");
 		exit(1);
 	}
 	if (pkt->type != JOIN_ACCEPTED && pkt->type != JOIN_REJECTED)
 	{
-		fprintf(stderr, "error: unexpected reply from server5\n");
+		fprintf(stderr, RED"error: unexpected reply from server5\n");
 		exit(1);
 	}
 
 	/*Từ chối cho vào phòng */
 	if (pkt->type == JOIN_REJECTED)
 	{
-		printf("admin: %s\n", pkt->text);
+		printf(CYN"admin: %s\n", pkt->text);
 		free(gname);
 		return (0);
 	}
 	else /* Tham gia thành công */
 	{
-		printf("admin: You joined '%s'!\n", gname);
-		printf("(Press '/end' to exit!)\n");
+		printf(GRN"admin: You joined '%s'!\n", gname);
+		printf(RED"(Press '/end' to exit!)\n");
 		free(gname);
 		return (1);
 	}
@@ -235,13 +236,13 @@ int join11(int sock)
 	pkt = recvpkt(sock);
 	if (!pkt)
 	{
-		printf("error: server died\n");
+		printf(RED"error: server died\n");
 		exit(1);
 	}
 
 	if (pkt->type != DONE)
 	{
-		fprintf(stderr, "error: unexpected reply from server6\n");
+		fprintf(stderr, RED"error: unexpected reply from server6\n");
 		exit(1);
 	}
 
@@ -249,7 +250,7 @@ int join11(int sock)
 	showUser(pkt->lent, pkt->text);
 
 	/* Tên phòng chat */
-	printf("which account?\n ");
+	printf(CYN"which account?\n ");
 
 	fgets(bufr, MAXPKTLEN, stdin);
 	bufr[strlen(bufr) - 1] = '\0';
@@ -274,25 +275,25 @@ int join11(int sock)
 	pkt = recvpkt(sock);
 	if (!pkt)
 	{
-		printf("error: server died\n");
+		printf(RED"error: server died\n");
 		exit(1);
 	}
 	if (pkt->type != JOIN_ACCEPTED && pkt->type != JOIN_REJECTED)
 	{
-		fprintf(stderr, "error: unexpected reply from server7\n");
+		fprintf(stderr, RED"error: unexpected reply from server7\n");
 		exit(1);
 	}
 
 	/*Từ chối cho vào phòng */
 	if (pkt->type == JOIN_REJECTED)
 	{
-		printf("admin: %s\n", pkt->text);
+		printf(CYN"admin: %s\n", pkt->text);
 		free(uname);
 		return (0);
 	}
 	else /* Tham gia thành công */
 	{
-		printf("admin: You chat with '%s'!\n", uname);
+		printf(GRN"admin: You chat with '%s'!\n", uname);
 		free(uname);
 		return (1);
 	}
@@ -308,10 +309,10 @@ int login(int sock, int *check)
 	if (check[sock] == 1)
 		return 1;
 	//username
-	printf("===LOG IN===\n");
+	printf(YEL"===LOG IN===\n");
 	while (getchar() != '\n')
 		;
-	printf("Username: ");
+	printf(GRN"Username: ");
 	fgets(bufr, MAXPKTLEN, stdin);
 	bufr[strlen(bufr) - 1] = '\0';
 
@@ -323,7 +324,7 @@ int login(int sock, int *check)
 	username = strdup(bufr);
 
 	//pass
-	printf("Password: ");
+	printf(BLU"Password: ");
 	fgets(bufr, MAXPKTLEN, stdin);
 	bufr[strlen(bufr) - 1] = '\0';
 
@@ -347,14 +348,14 @@ int login(int sock, int *check)
 	pkt = recvpkt(sock);
 	if (!pkt)
 	{
-		printf("error: server died\n");
+		printf(RED"error: server died\n");
 		exit(1);
 	}
 
 	/*LOG IN sai */
 	if (pkt->type == JOIN_REJECTED)
 	{
-		printf("admin: %s\n", pkt->text);
+		printf(CYN"admin: %s\n", pkt->text);
 		free(username);
 		free(pass);
 		return (0);
@@ -362,7 +363,7 @@ int login(int sock, int *check)
 	else
 	{
 		check[sock] = 1;
-		printf("%s!\n", pkt->text);
+		printf(RED"%s!\n", pkt->text);
 		free(username);
 		free(pass);
 		return 1;
@@ -376,10 +377,10 @@ int sendRegister(int sock)
 	char *bufrptr;
 	int bufrlen;
 	char *username, *pass;
-	printf("===Register===\n");
+	printf(YEL"===Register===\n");
 	while (getchar() != '\n')
 		;
-	printf("Username: ");
+	printf(GRN"Username: ");
 	fgets(bufr, MAXPKTLEN, stdin);
 	bufr[strlen(bufr) - 1] = '\0';
 
@@ -391,7 +392,7 @@ int sendRegister(int sock)
 	username = strdup(bufr);
 
 	//pass
-	printf("Password: ");
+	printf(BLU"Password: ");
 	fgets(bufr, MAXPKTLEN, stdin);
 	bufr[strlen(bufr) - 1] = '\0';
 
@@ -415,21 +416,21 @@ int sendRegister(int sock)
 	pkt = recvpkt(sock);
 	if (!pkt)
 	{
-		fprintf(stderr, "error: server died\n");
+		fprintf(stderr, RED"error: server died\n");
 		exit(1);
 	}
 
 	/*Error */
 	if (pkt->type == JOIN_REJECTED)
 	{
-		printf("admin: %s\n", pkt->text);
+		printf(CYN"admin: %s\n", pkt->text);
 		free(username);
 		free(pass);
 		return (0);
 	}
 	else
 	{
-		printf("%s!\n", pkt->text);
+		printf(RED"%s!\n", pkt->text);
 		free(username);
 		free(pass);
 		return 1;
@@ -444,8 +445,8 @@ int sendCreatRoom(int sock)
 	int bufrlen;
 	char *name;
 	char *cap;
-	printf("===Creat===\n");
-	printf("Room's name: ");
+	printf(YEL"===Creat===\n");
+	printf(GRN"Room's name: ");
 	fgets(bufr, MAXPKTLEN, stdin);
 	bufr[strlen(bufr) - 1] = '\0';
 
@@ -457,7 +458,7 @@ int sendCreatRoom(int sock)
 	name = strdup(bufr);
 
 	//cap
-	printf("Capacity: ");
+	printf(MAG"Capacity: ");
 	fgets(bufr, MAXPKTLEN, stdin);
 	bufr[strlen(bufr) - 1] = '\0';
 
@@ -481,21 +482,21 @@ int sendCreatRoom(int sock)
 	pkt = recvpkt(sock);
 	if (!pkt)
 	{
-		fprintf(stderr, "error: server died\n");
+		fprintf(stderr, RED"error: server died\n");
 		exit(1);
 	}
 
 	/*Error */
 	if (pkt->type == UNDONE)
 	{
-		printf("admin: %s\n", pkt->text);
+		printf(CYN"admin: %s\n", pkt->text);
 		free(name);
 		free(cap);
 		return (0);
 	}
 	else
 	{
-		printf("%s!\n", pkt->text);
+		printf(RED"%s!\n", pkt->text);
 		if(pkt->type == JOIN_REJECTED) {
 			free(name);
 			free(cap);
@@ -511,26 +512,26 @@ int sendCreatRoom(int sock)
 		pkt = recvpkt(sock);
 		if (!pkt)
 		{
-			printf("error: server died\n");
+			printf(RED"error: server died\n");
 			exit(1);
 		}
 		if (pkt->type != JOIN_ACCEPTED && pkt->type != JOIN_REJECTED)
 		{
-			fprintf(stderr, "error: unexpected reply from server5\n");
+			fprintf(stderr, RED"error: unexpected reply from server5\n");
 			exit(1);
 		}
 
 		/*Từ chối cho vào phòng */
 		if (pkt->type == JOIN_REJECTED)
 		{
-			printf("admin: %s\n", pkt->text);
+			printf(CYN"admin: %s\n", pkt->text);
 			free(name);
 			return (0);
 		}
 		else /* Tham gia thành công */
 		{
-			printf("admin: You joined '%s'!\n", name);
-			printf("(Press '/end' to exit!)\n");
+			printf(GRN"admin: You joined '%s'!\n", name);
+			printf(RED"(Press '/end' to exit!)\n");
 			free(name);
 			return (1);
 		}
@@ -547,8 +548,8 @@ int logout(int sock, int *check)
 	char *bufrptr;
 	int bufrlen;
 	char *username;
-	printf("===LOG OUT===\n");
-	printf("Username: ");
+	printf(YEL"===LOG OUT===\n");
+	printf(GRN"Username: ");
 	fgets(bufr, MAXPKTLEN, stdin);
 	bufr[strlen(bufr) - 1] = '\0';
 
@@ -570,21 +571,21 @@ int logout(int sock, int *check)
 	pkt = recvpkt(sock);
 	if (!pkt)
 	{
-		printf("error: server died\n");
+		printf(RED"error: server died\n");
 		exit(1);
 	}
 
 	/*Error */
 	if (pkt->type == JOIN_REJECTED)
 	{
-		printf("admin: %s\n", pkt->text);
+		printf(CYN"admin: %s\n", pkt->text);
 		free(username);
 		return (0);
 	}
 	else
 	{
 		check[sock] = 0;
-		printf("%s!\n", pkt->text);
+		printf(RED"%s!\n", pkt->text);
 		free(username);
 		return 1;
 	}
@@ -602,7 +603,7 @@ int main(int argc, char *argv[])
 	/* Kiểm tra tính hợp lệ của cú pháp  */
 	if (argc != 3)
 	{
-		printf("Wrong syntax!!!\n--> Correct Syntax: ./client AddressIP PortNumber\n");
+		printf(RED"Wrong syntax!!!\n--> Correct Syntax: ./client AddressIP PortNumber\n");
 		return 1;
 	}
 	/* Kết nối vs máy chủ */
@@ -636,7 +637,7 @@ int main(int argc, char *argv[])
 		//printf("%s",Gettype(choice));
 		if (strcmp(choice, "3") == 0)
 		{
-			printf("-->Exit!\n");
+			printf(RED"-->Exit!\n");
 			exit(0);
 		}
 		if (strcmp(choice, "1") == 0)
@@ -678,14 +679,14 @@ int main(int argc, char *argv[])
 					if (!pkt1)
 					{
 						/* Máy chủ ngừng hoạt động */
-						printf("error: server died\n");
+						printf(RED"error: server died\n");
 						exit(1);
 					}
 
 					/* Hiển thị tin nhắn văn bản */
 					if (pkt1->type != MENU && pkt1->type != REQUEST)
 					{
-						fprintf(stderr, "error: unexpected reply from server\n");
+						fprintf(stderr, RED"error: unexpected reply from server\n");
 						exit(1);
 					}
 					else if (pkt1->type == REQUEST)
@@ -693,7 +694,7 @@ int main(int argc, char *argv[])
 							int pkt1_len = pkt1->lent;
 						    char uname[pkt1_len];
 							snprintf(uname, pkt1_len + 1, "%s", pkt1->text);
-							printf("admin: You chat with '%s' \n", uname);
+							printf(GRN"admin: You chat with '%s' \n", uname);
 							/* Tiếp tục trò chuyện */
 							while (1)
 							{
@@ -717,35 +718,35 @@ int main(int argc, char *argv[])
 									if (!pkt)
 									{
 										/* Máy chủ ngừng hoạt động */
-										printf("error: server died\n");
+										printf(RED"error: server died\n");
 										exit(1);
 									}
 
 									/* Hiển thị tin nhắn văn bản */
 									if (pkt->type != USER_TEXT1 && pkt->type != QUIT)
 									{
-										fprintf(stderr, "error: unexpected reply from server\n");
+										fprintf(stderr, RED"error: unexpected reply from server\n");
 										exit(1);
 									}
 									if (pkt->type == QUIT) break;
 
 									if (strncmp(pkt->text,"@file",5)==0){
-										printf("ban da nhan dc file :");
+										printf(GRN"ban da nhan dc file :");
 										char *a;
 										char fname[30];
 										a=strtok(pkt->text,"@*");
 										a=strtok(NULL,"@*");
-										printf("%s\n",a);
+										printf(BLU"%s\n",a);
 										strcpy(fname,a);
 										FILE *fs=fopen(a,"w+");
 										
 										a=strtok(NULL,"@*");
-										fprintf(fs,"%s",a);
+										fprintf(fs,CYN"%s",a);
 										fclose(fs);
 										printf("%noi dung la: \n %s\n",a);
 
 									}
-									else printf("recvmsg: %s", pkt->text);
+									else printf(GRN"recvmsg: %s", pkt->text);
 									
 									freepkt(pkt);
 								}
@@ -831,17 +832,17 @@ int main(int argc, char *argv[])
 										if (!pkt)
 										{
 											/* Máy chủ ngừng hoạt động */
-											printf("error: server died\n");
+											printf(RED"error: server died\n");
 											exit(1);
 										}
 
 										/* Hiển thị tin nhắn văn bản */
 										if (pkt->type != USER_TEXT)
 										{
-											fprintf(stderr, "error: unexpected reply from serve1r\n");
+											fprintf(stderr, RED"error: unexpected reply from serve1r\n");
 											exit(1);
 										}
-										printf("%s: %s", pkt->text, pkt->text + strlen(pkt->text) + 1);
+										printf(BLU"%s:" GRN"%s", pkt->text, pkt->text + strlen(pkt->text) + 1);
 										freepkt(pkt);
 									}
 									/* Xử lí đầu vào */
@@ -892,17 +893,17 @@ int main(int argc, char *argv[])
 										if (!pkt)
 										{
 											/* Máy chủ ngừng hoạt động */
-											printf("error: server died\n");
+											printf(RED"error: server died\n");
 											exit(1);
 										}
 
 										/* Hiển thị tin nhắn văn bản */
 										if (pkt->type != USER_TEXT)
 										{
-											fprintf(stderr, "error: unexpected reply from serve1r\n");
+											fprintf(stderr, RED"error: unexpected reply from serve1r\n");
 											exit(1);
 										}
-										printf("%s: %s", pkt->text, pkt->text + strlen(pkt->text) + 1);
+										printf(BLU"%s:" GRN"%s", pkt->text, pkt->text + strlen(pkt->text) + 1);
 										freepkt(pkt);
 									}
 									/* Xử lí đầu vào */
@@ -956,36 +957,36 @@ int main(int argc, char *argv[])
 									if (!pkt)
 									{
 										/* Máy chủ ngừng hoạt động */
-										printf("error: server died\n");
+										printf(RED"error: server died\n");
 										exit(1);
 									}
 
 									/* Hiển thị tin nhắn văn bản */
 									if (pkt->type != USER_TEXT1 && pkt->type != QUIT)
 									{
-										fprintf(stderr, "error: unexpected reply from serve1r\n");
+										fprintf(stderr, RED"error: unexpected reply from serve1r\n");
 										exit(1);
 									}
 									if (pkt->type == QUIT) break;
 									
 									
 									if (strncmp(pkt->text,"@file",5)==0){
-										printf("ban da nhan dc file :");
+										printf(GRN"ban da nhan dc file :");
 										char *a;
 										char fname[30];
 										a=strtok(pkt->text,"@*");
 										a=strtok(NULL,"@*");
-										printf("%s\n",a);
+										printf(BLU"%s\n",a);
 										strcpy(fname,a);
 										FILE *fs=fopen(a,"w+");
 										
 										a=strtok(NULL,"@*");
-										fprintf(fs,"%s",a);
+										fprintf(fs,CYN"%s",a);
 										fclose(fs);
 										printf("%noi dung la: \n %s\n",a);
 
 									}
-									else printf("recvmsg: %s", pkt->text);
+									else printf(GRN"recvmsg: %s", pkt->text);
 									
 									freepkt(pkt);
 								}
