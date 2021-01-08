@@ -84,7 +84,7 @@ void showUser(long lent, char *text)
 		//printf("%s",username);
 		sock = tptr;
 		tptr = sock + strlen(sock) + 1;
-		printf(CYN"%18s"RESET MAG"%19s\n"RESET, username, sock);
+		printf(CYN"%18s"RESET,username);
 	}
 }
 
