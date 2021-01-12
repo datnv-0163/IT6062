@@ -74,7 +74,7 @@ void showUser(long lent, char *text)
 	char *tptr;
 
 	tptr = text;
-	printf("%18s %19s\n", CYN"Username", MAG"Sock");
+	printf("%24s\n", CYN"Online list");
 	while (tptr < text + lent)
 	{
 		char *username, *sock;
@@ -84,7 +84,7 @@ void showUser(long lent, char *text)
 		//printf("%s",username);
 		sock = tptr;
 		tptr = sock + strlen(sock) + 1;
-		printf(CYN"%18s"RESET,username);
+		printf(CYN"%18s\n"RESET,username);
 	}
 }
 

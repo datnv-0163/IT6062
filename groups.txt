@@ -1,13 +1,14 @@
-12
-tung 1
-a 2
-Room4 4
-PA 5
-roli 2
-room5 2
-pow 1
-group1 1
-group2 2
-Room3 4
-Room5 3
+13
+m 3
 Room6 3
+Room5 3
+Room3 4
+group2 2
+group1 1
+pow 1
+room5 2
+roli 2
+PA 5
+Room4 4
+a 2
+tung 1
